@@ -1,90 +1,113 @@
-# Tech Stack Document
+# Tech Stack Document for pasteblink
 
-This document explains the key technologies chosen for the **codeguide-starter** project. It’s written in everyday language so anyone—technical or not—can understand why each tool was picked and how it supports the application.
+This document explains the technology choices behind **pasteblink** in everyday language. It shows which tools we use, why we picked them, and how they all work together to build a fast, reliable, and easy-to-maintain web application.
 
 ## 1. Frontend Technologies
-The frontend is everything the user sees and interacts with. For this project, we’ve used:
 
-- **Next.js (App Router)**
-  - A React framework that makes page routing, server-side rendering, and API routes very simple.
-  - Enhances user experience by pre-rendering pages on the server or at build time, leading to faster initial load.
-- **React 18**
-  - The underlying library for building user interfaces with reusable components.
-  - Provides a smooth, interactive experience thanks to its virtual DOM and modern hooks.
-- **TypeScript**
-  - A superset of JavaScript that adds types (labels for data).
-  - Helps catch errors early during development and makes the code easier to maintain.
-- **CSS (globals.css & theme.css)**
-  - **globals.css** applies base styles (fonts, colors, resets) across the entire app.
-  - **dashboard/theme.css** defines the look and feel specific to the dashboard area.
-  - This separation keeps styles organized and avoids accidental style conflicts.
+Our frontend (the part users see and interact with) is built using:  
 
-By combining these tools, we have a clear structure (Next.js folders for pages and layouts), safer code (TypeScript), and flexible styling with vanilla CSS.
+- **Next.js (App Router)**  
+  A modern React framework that gives us server-side rendering, file-based routing, and a clear folder structure. This means pages load faster and our code stays organized.  
+- **TypeScript**  
+  A superset of JavaScript that adds types. It catches mistakes early and makes the code easier to understand and refactor.  
+- **React**  
+  The core library for building user interfaces with reusable components.  
+- **Tailwind CSS**  
+  A utility-first styling tool. Instead of writing custom CSS for every element, we apply tiny, reusable classes directly in our HTML. This speeds up design and ensures a consistent look.  
+- **shadcn/ui**  
+  A collection of ready-made, accessible UI components built on top of Radix UI and Tailwind CSS. We customize these to fit pasteblink’s style, saving design and accessibility work.  
+- **next-themes**  
+  A simple way to switch between light and dark mode. It reads the user’s preference and applies the right color scheme instantly.  
+
+Why these choices enhance user experience:  
+- Server-side rendering (Next.js) leads to faster page loads and better SEO.  
+- Tailwind and shadcn/ui let us build polished, consistent interfaces quickly.  
+- Dark-mode support via next-themes meets modern user expectations.  
+- TypeScript and React ensure our UI code is maintainable and scalable.
 
 ## 2. Backend Technologies
-The backend handles data, user accounts, and the logic behind the scenes. Our choices here are:
 
-- **Next.js API Routes**
-  - Allows us to write server-side code (`route.ts` files) alongside our frontend in the same project.
-  - Runs on Node.js, so we can handle requests like sign-up, sign-in, and data fetching in one place.
-- **Node.js Runtime**
-  - The JavaScript environment on the server that executes our API routes.
-- **bcrypt** (npm package)
-  - A library for hashing passwords securely before storing them.
-  - Ensures that even if someone got access to our data, raw passwords aren’t visible.
-- **(Optional) NextAuth.js or JWT**
-  - While this starter kit shows a custom authentication flow, it can easily integrate services like NextAuth.js for email-based login or JWT (JSON Web Tokens) for stateless sessions.
+The backend (the part that handles data, authentication, and business logic) uses:  
 
-These components work together to receive user credentials, verify or store them securely, manage sessions or tokens, and deliver protected data back to the frontend.
+- **Better Auth**  
+  A hosted authentication service that manages sign-up, sign-in, password resets, and sessions. It gives us a secure, battle-tested system without building it from scratch.  
+- **Drizzle ORM**  
+  A lightweight, type-safe way to define and query our database. Drizzle checks our queries at compile time, reducing runtime errors.  
+- **PostgreSQL**  
+  A powerful, reliable relational database. It stores user accounts, session data, and any custom application data we add.  
+- **TypeScript (server-side)**  
+  Extends type safety to our backend code, making it easier to maintain and refactor.  
+- **API Routes in Next.js**  
+  We colocate backend routes inside the same project folder structure (`/app/api/auth/[...all]/route.ts`). This keeps related code together and streamlines full-stack development.
+
+How these components work together:  
+1. User submits login or sign-up form in the frontend.  
+2. The request hits a Next.js API route, which delegates to Better Auth.  
+3. Better Auth stores or verifies credentials in PostgreSQL via the Drizzle adapter.  
+4. On success, a session cookie is issued and the user is redirected to the dashboard.  
+5. All data fetching (user profile, future application data) goes through Drizzle queries to PostgreSQL.
 
 ## 3. Infrastructure and Deployment
-Infrastructure covers where and how we host the app, as well as how changes get delivered:
 
-- **Git & GitHub**
-  - Version control system (Git) and remote hosting (GitHub) keep track of all code changes and allow team collaboration.
-- **Vercel (or Netlify)**
-  - A popular hosting service optimized for Next.js, with one-click deployments and global content delivery.
-  - Automatically rebuilds and deploys the site whenever code is pushed to the main branch.
-- **GitHub Actions (CI/CD)**
-  - Automates tasks like linting (ESLint), formatting (Prettier), and running any tests you add.
-  - Ensures that only clean, tested code goes live.
+To make development and deployment smooth, we use:  
 
-Together, these tools provide a reliable, scalable setup where every code change is tested and deployed quickly, with minimal manual work.
+- **Docker & Docker Compose**  
+  We containerize the application and the PostgreSQL database. This ensures everyone on the team works in the same environment and simplifies deployment.  
+- **Git** and **GitHub**  
+  Version control for tracking code changes, collaboration, and code review.  
+- **(Optional) CI/CD Pipelines (e.g., GitHub Actions)**  
+  When code is pushed, automated tests and builds can run, and successful builds can be deployed to a hosting platform.  
+- **Hosting Platform (e.g., Vercel, DigitalOcean)**  
+  A cloud service to run the Docker containers or directly host the Next.js app. Vercel integrates seamlessly with Next.js for fast deployments and global content delivery.
+
+These decisions ensure:  
+- Consistent environments with Docker.  
+- Easy collaboration and code history via Git/GitHub.  
+- Fast, automated deployments with CI/CD.  
+- High availability and performance using modern cloud hosting.
 
 ## 4. Third-Party Integrations
-While this starter kit is minimal by design, it already includes or can easily add:
 
-- **bcrypt**
-  - For secure password hashing (included as an npm dependency).
-- **NextAuth.js** (optional)
-  - A full-featured authentication library supporting email/password, OAuth, and more.
-- **Sentry or LogRocket** (optional)
-  - For real-time error tracking and performance monitoring in production.
+pasteblink relies on a few third-party services to extend functionality without reinventing the wheel:  
 
-These integrations help extend the app’s capabilities without building every feature from scratch.
+- **Better Auth** (authentication as a service)  
+- **PostgreSQL** (hosted or managed database)  
+- **(Optional) Analytics Tools** like Google Analytics or Plausible for tracking user behavior.  
+
+Benefits of these integrations:  
+- Better Auth removes the complexity and security risks of home-grown authentication.  
+- A managed PostgreSQL service ensures backups, updates, and scaling are handled for us.  
+- Analytics tools provide insight into user engagement, helping us improve the product.
 
 ## 5. Security and Performance Considerations
-We’ve baked in several measures to keep users safe and the app running smoothly:
 
-Security:
-- Passwords are never stored in plain text—bcrypt hashes them with a random salt.
-- API routes can implement CSRF protection and input validation to block malicious requests.
-- Session tokens or cookies are marked secure and HttpOnly to prevent theft via JavaScript.
+Security measures implemented:  
 
-Performance:
-- Server-side rendering (SSR) and static site generation (SSG) in Next.js deliver pages faster.
-- Code splitting and lazy-loaded components ensure users only download what they need.
-- Global CSS and theme files are small and cached by the browser for quick repeat visits.
+- **Secure Authentication** with Better Auth, including encrypted password storage, session management, and CSRF protection.  
+- **HTTPS Everywhere** by default on hosting platforms to encrypt data in transit.  
+- **Type Safety** (TypeScript + Drizzle ORM) reduces runtime errors that could expose vulnerabilities.  
+- **Environment Variables** for secrets (API keys, database credentials), never checked into source control.  
 
-These strategies work together to give users a fast, secure experience every time.
+Performance optimizations:  
+
+- **Server-Side Rendering** for faster first-load times and SEO benefits.  
+- **Automatic Code Splitting** by Next.js so users only download code they need.  
+- **Image Optimization** using Next.js’s Image component to serve properly sized formats (WebP, etc.).  
+- **Tailwind CSS Purge** to remove unused styles and keep CSS bundles small.  
+- **Docker Caching** in CI pipelines to speed up rebuilds.  
 
 ## 6. Conclusion and Overall Tech Stack Summary
-In building **codeguide-starter**, we chose technologies that:
 
-- Align with modern web standards (Next.js, React, TypeScript).
-- Provide a clear, file-based project structure for rapid onboarding.
-- Offer built-in support for server-side rendering, API routes, and static assets.
-- Emphasize security through password hashing, session management, and safe defaults.
-- Enable easy scaling and future enhancements via modular code and optional integrations.
+pasteblink brings together a set of modern, developer-friendly technologies that achieve three main goals:  
 
-This stack strikes a balance between simplicity for newcomers and flexibility for experienced teams. It accelerates development of a secure authentication flow and a polished dashboard, while leaving room to plug in databases, test suites, and advanced features as the project grows.
+1. **Fast, polished user experiences** with Next.js, React, Tailwind CSS, and shadcn/ui.  
+2. **Secure, scalable backend** using Better Auth, Drizzle ORM, and PostgreSQL.  
+3. **Reliable and consistent deployments** through Docker, GitHub/Git, and cloud hosting (e.g., Vercel).  
+
+Unique strengths of this tech stack:  
+
+- **End-to-end Type Safety:** From the database schema to API routes to UI components.  
+- **Integrated Full-Stack Framework:** Next.js App Router blurs the line between frontend and backend for seamless development.  
+- **Rapid UI Development:** Utility-first styling and headless UI components mean less custom CSS and more focus on user experience.  
+
+Together, these choices give you a solid foundation to build any modern web application—quickly, securely, and with a delightful developer experience.
